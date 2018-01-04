@@ -1,0 +1,50 @@
+version: '2'
+
+######## Set Network #########
+networks:
+    mylara:
+
+services:
+    php-fpm:
+        build: php-fpm
+        networks:
+            - mylara
+        ports: 
+            - "9000:9000"
+        volumes:
+            - ./www:/var/www
+
+    nginx:
+        build: nginx
+        networks:
+            - mylara
+        depends_on:
+            - php-fpm
+        volumes:
+            - ./www:/var/www
+            - ./nginx/conf:/etc/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+
+    mysql:
+        image: "mysql:5.7.15"
+        networks:
+            - mylara
+        environment:
+            MYSQL_DATABASE: blog
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_USER: niming175
+            MYSQL_PASSWORD: 123456
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+        ports:
+            - "3306:3306" 
+    redis:
+        build: redis
+        networks:
+            - mylara
+        volumes:
+            - ./data/redis:/data
+            - ./redis/conf:/etc/redis
+
